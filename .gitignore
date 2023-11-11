@@ -26,6 +26,8 @@ dataloaders/datasets/
 __pycache__/*
 .vscode/launch.json
 
+# Data
+train_data
 *.jpg
 
 # Byte-compiled / optimized / DLL files
