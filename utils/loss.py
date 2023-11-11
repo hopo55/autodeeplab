@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import segmentation_models_pytorch as smp
 
 
 class SegmentationLosses(object):
@@ -84,6 +85,8 @@ def build_criterion(args):
         return OhemCELoss(thresh=args.thresh, n_min=args.n_min, cuda=True)
     elif args.criterion == 'crossentropy':
         return SegmentationLosses(weight=args.weight, cuda=True).build_loss(args.mode)
+    elif args.criterion == 'dice':
+        return smp.losses.DiceLoss('binary')
     else:
         raise ValueError('unknown criterion : {:}'.format(args.criterion))
 

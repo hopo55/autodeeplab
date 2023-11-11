@@ -10,6 +10,8 @@ class Loader(object):
         self.args = args
         if self.args.dataset == 'cityscapes':
             self.nclass = 19
+        elif self.args.dataset == 'sealer':
+            self.nclass = 1
 
         # Resuming checkpoint
         self.best_pred = 0.0
@@ -51,9 +53,9 @@ def get_new_network_cell():
     network_path_filename = os.path.join(dir_name, 'network_path')
     network_path_space_filename = os.path.join(dir_name, 'network_path_space')
     genotype_filename = os.path.join(dir_name, 'genotype')
-    np.save(network_path_filename, network_path)
+    np.save(network_path_filename, network_path)    # backbone
     np.save(network_path_space_filename, network_path_space)
-    np.save(genotype_filename, genotype)
+    np.save(genotype_filename, genotype) # new cell structure
 
     print('saved to :', dir_name)
 

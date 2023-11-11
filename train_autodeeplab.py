@@ -15,6 +15,7 @@ from utils.metrics import Evaluator
 from auto_deeplab import AutoDeeplab
 from config_utils.search_args import obtain_search_args
 from utils.copy_state_dict import copy_state_dict
+import segmentation_models_pytorch as smp
 import apex
 try:
     from apex import amp
@@ -57,11 +58,11 @@ class Trainer(object):
             weight = torch.from_numpy(weight.astype(np.float32))
         else:
             weight = None
-        self.criterion = SegmentationLosses(weight=weight, cuda=args.cuda).build_loss(mode=args.loss_type)
+        # self.criterion = SegmentationLosses(weight=weight, cuda=args.cuda).build_loss(mode=args.loss_type)
+        self.criterion = smp.losses.DiceLoss('binary')
 
         # Define network
-        model = AutoDeeplab (self.nclass, 12, self.criterion, self.args.filter_multiplier,
-                             self.args.block_multiplier, self.args.step)
+        model = AutoDeeplab(self.nclass, self.args.num_layers, self.criterion, self.args.filter_multiplier, self.args.block_multiplier, self.args.step)
         optimizer = torch.optim.SGD(
                 model.weight_parameters(),
                 args.lr,
@@ -171,7 +172,8 @@ class Trainer(object):
         tbar = tqdm(self.train_loaderA)
         num_img_tr = len(self.train_loaderA)
         for i, sample in enumerate(tbar):
-            image, target = sample['image'], sample['label']
+            # image, target = sample['image'], sample['label']
+            image, target = sample[0], sample[1]
             if self.args.cuda:
                 image, target = image.cuda(), target.cuda()
             self.scheduler(self.optimizer, i, epoch, self.best_pred)
@@ -187,7 +189,8 @@ class Trainer(object):
 
             if epoch >= self.args.alpha_epoch:
                 search = next(iter(self.train_loaderB))
-                image_search, target_search = search['image'], search['label']
+                # image_search, target_search = search['image'], search['label']
+                image_search, target_search = search[0], search[1]
                 if self.args.cuda:
                     image_search, target_search = image_search.cuda (), target_search.cuda ()
 
@@ -206,9 +209,9 @@ class Trainer(object):
             #self.writer.add_scalar('train/total_loss_iter', loss.item(), i + num_img_tr * epoch)
 
             # Show 10 * 3 inference results each epoch
-            if i % (num_img_tr // 10) == 0:
-                global_step = i + num_img_tr * epoch
-                self.summary.visualize_image(self.writer, self.args.dataset, image, target, output, global_step)
+            # if i % (num_img_tr // 10) == 0:
+            #     global_step = i + num_img_tr * epoch
+                # self.summary.visualize_image(self.writer, self.args.dataset, image, target, output, global_step)
 
             #torch.cuda.empty_cache()
         self.writer.add_scalar('train/total_loss_epoch', train_loss, epoch)
@@ -237,7 +240,8 @@ class Trainer(object):
         test_loss = 0.0
 
         for i, sample in enumerate(tbar):
-            image, target = sample['image'], sample['label']
+            # image, target = sample['image'], sample['label']
+            image, target = sample[0], sample[1]
             if self.args.cuda:
                 image, target = image.cuda(), target.cuda()
             with torch.no_grad():
@@ -301,7 +305,8 @@ def main():
             'coco': 30,
             'cityscapes': 40,
             'pascal': 50,
-            'kd':10
+            'kd': 10,
+            'sealer': 50,
         }
         args.epochs = epoches[args.dataset.lower()]
 

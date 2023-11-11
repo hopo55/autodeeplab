@@ -10,7 +10,8 @@ class Decoder(object):
         self._alphas = alphas
         self._steps = steps
         self._num_layers = self._betas.shape[0]
-        self.network_space = torch.zeros(12, 4, 3)
+        # self.network_space = torch.zeros(12, 4, 3)
+        self.network_space = torch.zeros(self._num_layers, 4, 3)
 
         for layer in range(self._num_layers):
             if layer == 0:
@@ -58,7 +59,8 @@ class Decoder(object):
                     path_space[layer][sample] = path  # path[1 : ➚, 0: ➙, -1 : ➘]
 
         output_sample = prob_space[-1, :].argmax(axis=-1)
-        actual_path = np.zeros(12).astype('uint8')
+        # actual_path = np.zeros(12).astype('uint8')
+        actual_path = np.zeros(self._num_layers).astype('uint8')
         actual_path[-1] = output_sample
         for i in range(1, self._num_layers):
             actual_path[-i - 1] = actual_path[-i] + path_space[self._num_layers - i, actual_path[-i]]

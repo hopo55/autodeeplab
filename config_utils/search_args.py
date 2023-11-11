@@ -11,22 +11,24 @@ def obtain_search_args():
                         help='opt level for half percision training (default: O0)')
     parser.add_argument('--out-stride', type=int, default=16,
                         help='network output stride (default: 8)')
-    parser.add_argument('--dataset', type=str, default='cityscapes',
-                        choices=['pascal', 'coco', 'cityscapes', 'kd'],
+    parser.add_argument('--dataset', type=str, default='sealer',
+                        choices=['pascal', 'coco', 'cityscapes', 'kd', 'sealer', 'sealer'],
                         help='dataset name (default: pascal)')
     parser.add_argument('--autodeeplab', type=str, default='search',
                         choices=['search', 'train'])
+    parser.add_argument('--num_layers', type=int, default=12,
+                        help='architecture number of layers')
     parser.add_argument('--use-sbd', action='store_true', default=False,
                         help='whether to use SBD dataset (default: True)')
     parser.add_argument('--load-parallel', type=int, default=0)
     parser.add_argument('--clean-module', type=int, default=0)
     parser.add_argument('--workers', type=int, default=0,
                         metavar='N', help='dataloader threads')
-    parser.add_argument('--base_size', type=int, default=320,
+    parser.add_argument('--base_size', type=int, default=128,
                         help='base image size')
-    parser.add_argument('--crop_size', type=int, default=321,
+    parser.add_argument('--crop_size', type=int, default=128,
                         help='crop image size')
-    parser.add_argument('--resize', type=int, default=512,
+    parser.add_argument('--resize', type=int, default=128,
                         help='resize image size')
     parser.add_argument('--sync-bn', type=bool, default=None,
                         help='whether to use sync bn (default: auto)')
@@ -99,5 +101,7 @@ def obtain_search_args():
                         type=bool, help='whether use affine in BN')
     parser.add_argument('--multi_scale', default=(0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0),
                         type=bool, help='whether use multi_scale in train')
+    parser.add_argument('--dist', type=bool, default=False)
+
     args = parser.parse_args()
     return args
